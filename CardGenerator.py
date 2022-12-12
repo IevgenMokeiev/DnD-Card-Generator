@@ -155,40 +155,41 @@ class Fonts(ABC):
 
 
 class FreeFonts(Fonts):
-    FONT_SCALE = 1.41
+    FONT_SCALE = 1.5
 
     styles = {
-        "title": ("Universal Serif", 2.5 * mm, "black"),
-        "subtitle": ("ScalySans", 1.5 * mm, "white"),
-        "challenge": ("Universal Serif", 2.25 * mm, "black"),
-        "category": ("Universal Serif", 2.25 * mm, "black"),
-        "subcategory": ("Universal Serif", 1.5 * mm, "black"),
-        "heading": ("ScalySansBold", 1.5 * mm, "black"),
-        "text": ("ScalySans", 1.5 * mm, "black"),
-        "artist": ("ScalySans", 1.5 * mm, "white"),
-        "modifier_title": ("Universal Serif", 1.5 * mm, "black"),
+        "title": ("SourceSerifPro-Black", 2.5 * mm, "black"),
+        "subtitle": ("SourceSerifPro", 1.5 * mm, "white"),
+        "challenge": ("SourceSerifPro-Black", 2.25 * mm, "black"),
+        "category": ("SourceSerifPro-Black", 2.25 * mm, "black"),
+        "subcategory": ("SourceSerifPro-Black", 1.5 * mm, "black"),
+        "heading": ("SourceSerifPro-Bold", 1.5 * mm, "black"),
+        "text": ("SourceSerifPro", 1.5 * mm, "black"),
+        "artist": ("SourceSerifPro", 1.5 * mm, "white"),
+        "modifier_title": ("SourceSerifPro-Black", 1.5 * mm, "black"),
     }
 
     def _register_fonts(self):
         pdfmetrics.registerFont(
-            TTFont("Universal Serif", self.FONT_DIR / "Universal Serif.ttf")
-        )
-        pdfmetrics.registerFont(TTFont("ScalySans", self.FONT_DIR / "ScalySans.ttf"))
-        pdfmetrics.registerFont(
-            TTFont("ScalySansItalic", self.FONT_DIR / "ScalySans-Italic.ttf")
+            TTFont("SourceSerifPro", self.FONT_DIR / "SourceSerifPro-Regular.ttf")
         )
         pdfmetrics.registerFont(
-            TTFont("ScalySansBold", self.FONT_DIR / "ScalySans-Bold.ttf")
+            TTFont("SourceSerifPro-Black", self.FONT_DIR / "SourceSerifPro-Black.ttf")
         )
         pdfmetrics.registerFont(
-            TTFont("ScalySansBoldItalic", self.FONT_DIR / "ScalySans-BoldItalic.ttf")
+            TTFont("SourceSerifPro-Italic", self.FONT_DIR / "SourceSerifPro-Italic.ttf")
+        )
+        pdfmetrics.registerFont(
+            TTFont("SourceSerifPro-Bold", self.FONT_DIR / "SourceSerifPro-Bold.ttf")
+        )
+        pdfmetrics.registerFont(
+            TTFont("SourceSerifPro-BoldItalic", self.FONT_DIR / "SourceSerifPro-BoldItalic.ttf")
         )
 
-        addMapping("ScalySans", 0, 0, "ScalySans")  # normal
-        addMapping("ScalySans", 0, 1, "ScalySansItalic")  # italic
-        addMapping("ScalySans", 1, 0, "ScalySansBold")  # bold
-        addMapping("ScalySans", 1, 1, "ScalySansBoldItalic")  # italic and bold
-
+        addMapping("SourceSerifPro", 0, 0, "SourceSerifPro")  # normal
+        addMapping("SourceSerifPro", 0, 1, "SourceSerifPro-Italic")  # italic
+        addMapping("SourceSerifPro", 1, 0, "SourceSerifPro-Bold")  # bold
+        addMapping("SourceSerifPro", 1, 1, "SourceSerifPro-BoldItalic")  # italic and bold
 
 class AccurateFonts(Fonts):
     FONT_SCALE = 1.41
@@ -361,9 +362,7 @@ class CardLayout(ABC):
         self.height = height + 2 * bleed
         self.bleed = bleed
         self.front_image_path = os.path.abspath(image_path)
-        self.front_orientation = best_orientation(
-            self.front_image_path, self.width, self.height
-        )
+        self.front_orientation = Orientation.NORMAL
         self.elements = []
         self.front_margins = tuple(
             [x + self.STANDARD_MARGIN for x in self.border_front]
@@ -498,6 +497,24 @@ class CardLayout(ABC):
                 except StopIteration:
                     break
 
+        try:
+            current_frame = next(frames)
+            line_width = current_frame._width
+            # If we have empty frame, add notes
+            paragraph = Paragraph(
+                "Нотатки Майстра",
+                self.fonts.paragraph_styles["title"],
+            )
+            current_frame.add(paragraph, canvas)
+            divider = LineDivider(
+                width=line_width,
+                xoffset=-self.TEXT_MARGIN,
+                fill_color=self.border_color,
+            )
+            current_frame.add(divider, canvas)
+        except StopIteration:
+            pass
+
         # If there are undrawn elements, raise an error
         if len(self.elements) > 0:
             raise TemplateTooSmall("Template too small")
@@ -527,23 +544,6 @@ class CardLayout(ABC):
         else:
             width = self.width
             height = self.height
-
-        # D&D logo
-        dnd_logo = svg2rlg(ASSET_DIR / "logo.svg")
-        if dnd_logo is not None:
-            factor = self.LOGO_WIDTH / dnd_logo.width
-            dnd_logo.width *= factor
-            dnd_logo.height *= factor
-            dnd_logo.scale(factor, factor)
-            logo_margin = (
-                self.border_front[Border.TOP] - self.bleed - dnd_logo.height
-            ) / 2
-            renderPDF.draw(
-                dnd_logo,
-                canvas,
-                (width - self.LOGO_WIDTH) / 2,
-                height - self.border_front[Border.TOP] + logo_margin,
-            )
 
         self._draw_front_frame(canvas, width, height)
 
@@ -793,7 +793,7 @@ class MonsterCardLayout(CardLayout):
         canvas.drawString(
             self.width + self.border_front[Border.LEFT],
             self.challenge_bottom,
-            "Challenge {} ({} XP)".format(
+            "Небезпека {} ({} ПД)".format(
                 self.challenge_rating, self.experience_points
             ),
         )
@@ -834,13 +834,13 @@ class MonsterCardLayout(CardLayout):
         top_stats = [
             [
                 Paragraph(
-                    "<b>AC:</b> {}<br/><b>Speed:</b> {}".format(
+                    "<b>КЗ:</b> {}<br/><b>Швидкість:</b> {}".format(
                         self.armor_class, self.speed
                     ),
                     self.fonts.paragraph_styles["text"],
                 ),
                 Paragraph(
-                    "<b>HP:</b> {}".format(self.max_hit_points),
+                    "<b>ПЗ:</b> {}".format(self.max_hit_points),
                     self.fonts.paragraph_styles["text"],
                 ),
             ]
@@ -858,7 +858,7 @@ class MonsterCardLayout(CardLayout):
         self.elements.append(t)
 
         # Modifiers
-        abilities = ["STR", "DEX", "CON", "INT", "WIS", "CHA"]
+        abilities = ["СИЛ", "СПР", "СТА", "ІНТ", "МДР", "ХАР"]
         modifiers = [
             self.strength,
             self.dexterity,
@@ -923,7 +923,7 @@ class MonsterCardLayout(CardLayout):
         )
 
         # Actions
-        title = Paragraph("ACTIONS", self.fonts.paragraph_styles["action_title"])
+        title = Paragraph("ДІЇ", self.fonts.paragraph_styles["action_title"])
         first_action = True
         for heading, body in (self.actions or {}).items():
             paragraph = Paragraph(
@@ -947,7 +947,7 @@ class MonsterCardLayout(CardLayout):
                 )
             )
 
-            title = Paragraph("REACTIONS", self.fonts.paragraph_styles["action_title"])
+            title = Paragraph("РЕАКЦІЇ", self.fonts.paragraph_styles["action_title"])
             first_reaction = True
             for heading, body in (self.reactions or {}).items():
                 paragraph = Paragraph(
@@ -971,7 +971,7 @@ class MonsterCardLayout(CardLayout):
             )
 
             title = Paragraph(
-                "LEGENDARY ACTIONS", self.fonts.paragraph_styles["action_title"]
+                "ЛЕГЕНДАРНІ ДІЇ", self.fonts.paragraph_styles["action_title"]
             )
             first_legendary = True
             for entry in self.legendary or []:

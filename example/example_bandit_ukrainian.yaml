@@ -1,0 +1,20 @@
+- title: Бандит
+  subtitle: Середній гуманоїд
+  armor_class: 12 (шкіряна броня)
+  max_hit_points: 11 (2к8 + 2)
+  speed: 30 фт
+  strength: 11 (+0)
+  dexterity: 12 (+1)
+  constitution: 12 (+1)
+  intelligence: 10 (+0)
+  wisdom: 10 (+0)
+  charisma: 10 (+0)
+  challenge_rating: 1/8
+  experience_points: 25
+  source: "СРД"
+  attributes:
+    Чуття: Пасивне сприйняття 10
+    Мови: Загальна
+  actions:
+    Скимитар: +4, 5 фт, 5 (1к6 + 2) рубаних ушкоджень.
+    Легкий арбалет: +3, 80/320 фт, 5 (1к8 + 1) колотих ушкоджень.
