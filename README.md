@@ -1,3 +1,12 @@
+# Генератор карток монстрів Dungeons & Dragons
+Скрипт, який дозволяє згенерувати картки для Dungeons and Dragons в стилі офіційних карток Gale Force Nine
+
+Форк оригінального репозиторію автора, який було адаптовано під український переклад. 
+
+Для користування, встановіть Python та інші інші залежності як вказано в інструкції нижче. Після цього, заповніть свою картку використовуючи бандита в папці `example` як шаблон.
+
+![Example Output](docs/bandit.png)
+
 # Dungeons & Dragons Card Generator
 A script to generate cards for Dungeons and Dragons in the style of the official Gale Force Nine ones.
 
