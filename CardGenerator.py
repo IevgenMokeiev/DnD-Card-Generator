@@ -554,7 +554,7 @@ class CardLayout(ABC):
             canvas.drawCentredString(
                 width / 2,
                 self.border_front[Border.BOTTOM] - artist_font_height - 1 * mm,
-                "Artist: {}".format(self.artist),
+                "Художник: {}".format(self.artist),
             )
 
         canvas.restoreState()
@@ -1172,8 +1172,7 @@ class CardGenerator(ABC):
 
 
 class MonsterCard(CardGenerator):
-    sizes = [MonsterCardLarge, MonsterCardEpic]
-    # sizes = [MonsterCardSmall, MonsterCardLarge, MonsterCardEpic, MonsterCardSuperEpic]
+    sizes = [MonsterCardSmall, MonsterCardLarge, MonsterCardEpic, MonsterCardSuperEpic]
 
 
 class ItemCard(CardGenerator):
