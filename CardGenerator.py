@@ -91,7 +91,7 @@ class Fonts(ABC):
                 fontName=self.styles["subtitle"][0],
                 fontSize=self.styles["subtitle"][1] * self.FONT_SCALE,
                 textColor=self.styles["subtitle"][2],
-                backColor="red",
+                backColor="gray",
                 leading=self.styles["subtitle"][1] * self.FONT_SCALE + 0.5 * mm,
                 alignment=TA_CENTER,
                 borderPadding=(0, 6),
@@ -554,7 +554,7 @@ class CardLayout(ABC):
             canvas.drawCentredString(
                 width / 2,
                 self.border_front[Border.BOTTOM] - artist_font_height - 1 * mm,
-                "Художник: {}".format(self.artist),
+                "Artist: {}".format(self.artist),
             )
 
         canvas.restoreState()
@@ -824,10 +824,12 @@ class MonsterCardLayout(CardLayout):
         )
 
         # Subtitle
+        subtitleFontStyle = self.fonts.paragraph_styles["subtitle"]
+        subtitleFontStyle.backColor = self.border_color
         self.elements.append(
             Paragraph(
                 self.subtitle,
-                self.fonts.paragraph_styles["subtitle"],
+                subtitleFontStyle,
             )
         )
 
@@ -1170,7 +1172,8 @@ class CardGenerator(ABC):
 
 
 class MonsterCard(CardGenerator):
-    sizes = [MonsterCardSmall, MonsterCardLarge, MonsterCardEpic, MonsterCardSuperEpic]
+    sizes = [MonsterCardLarge, MonsterCardEpic]
+    # sizes = [MonsterCardSmall, MonsterCardLarge, MonsterCardEpic, MonsterCardSuperEpic]
 
 
 class ItemCard(CardGenerator):
